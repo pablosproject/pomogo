@@ -4,37 +4,41 @@ import (
 	"flag"
 	"fmt"
 	"math"
-	"os"
 	"time"
 )
 
 func main() {
-	// defining flags
-	// No flag is also possible
 
 	workLenght := flag.Int("l", 25, "lenght of work in minutes")
 	shortBreak := flag.Int("s", 5, "short pause (in minute)")
 	flag.Parse()
 
-	timer := PomodoroTimer{
-		workLenght:       time.Duration(*workLenght) * time.Minute,
-		shortPauseLenght: time.Duration(*shortBreak) * time.Minute,
-		longPauseLenght:  0,
-		ticker:           &time.Ticker{},
-		startTime:        time.Time{},
-	}
+	done := make(chan bool)
+	timer := NewTimer(*workLenght, *shortBreak)
 
-	timer.start()
-	for {
-		select {
-		case <-timer.ticker.C:
-			if timer.remainingTime() <= 0 {
-				timer.stop()
-				os.Exit(2)
+	go func() {
+		for {
+			select {
+			case currentTime := <-timer.TimeC:
+				fmt.Println(formatDuration(currentTime))
+			case newState := <-timer.StateC:
+				switch newState {
+				case IDLE:
+					fmt.Println("Idle state")
+				case WORK:
+					fmt.Println("work state")
+				case SHORTBREAK:
+					fmt.Println("shortbreak state")
+				case LONGBREAK:
+					fmt.Println("longbreak state")
+				}
 			}
-			fmt.Println(formatDuration(timer.remainingTime()))
 		}
-	}
+	}()
+
+	timer.Start()
+
+	<-done
 }
 
 func formatDuration(d time.Duration) string {
