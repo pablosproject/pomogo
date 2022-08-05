@@ -40,6 +40,10 @@ func NewTimer(workLenght, shortBreak int) *PomodoroTimer {
 		TimeC:            make(chan time.Duration),
 	}
 
+	timer.workLenght = 3 * time.Second
+	timer.shortPauseLenght = 3 * time.Second
+	timer.longPauseLenght = 3 * time.Second
+
 	timer.init()
 	return &timer
 }
@@ -72,6 +76,10 @@ func (t *PomodoroTimer) Start() {
 func (t *PomodoroTimer) Stop() {
 	t.workCount = 0
 	t.setState(IDLE)
+}
+
+func (t *PomodoroTimer) State() PomodoroState {
+	return t.state
 }
 
 func (t *PomodoroTimer) remainingTime() time.Duration {
