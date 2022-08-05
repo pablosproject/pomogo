@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/nsf/termbox-go"
 )
@@ -22,8 +23,17 @@ func main() {
 	flag.Parse()
 
 	done := make(chan bool)
-	timer := NewTimer(*workLenght, *shortBreak)
+	timer := NewTimer(
+		PomodoroConfig{
+			workLenght:       time.Duration(*workLenght) * time.Minute,
+			shortPauseLenght: time.Duration(*shortBreak) * time.Minute,
+			longPauseLenght:  0,
+		},
+	)
 	render := Render{}
+
+	// TODO: create a mediator that arrange logic and signal between events
+	// TODO: handle exit state
 
 	go func() {
 		for {
@@ -54,4 +64,5 @@ func main() {
 	timer.Start()
 
 	<-done
+	os.Exit(0)
 }

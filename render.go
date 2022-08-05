@@ -9,7 +9,7 @@ import (
 )
 
 type RenderState struct {
-	state         PomodoroState
+	state         WorkState
 	remainingTime time.Duration
 }
 
