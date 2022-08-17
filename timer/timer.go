@@ -1,15 +1,13 @@
-// TODO: check how to put this file in its own package to just export the needed references
-// https://go.dev/doc/code
-package main
+package timer
 
 import (
 	"time"
 )
 
 type PomodoroConfig struct {
-	workLenght       time.Duration
-	shortPauseLenght time.Duration
-	longPauseLenght  time.Duration
+	WorkLenght       time.Duration
+	ShortPauseLenght time.Duration
+	LongPauseLenght  time.Duration
 }
 
 type PomodoroTimer struct {
@@ -17,8 +15,6 @@ type PomodoroTimer struct {
 	state     State
 	ticker    *time.Ticker
 	startTime time.Time
-	StateC    chan WorkState
-	TimeC     chan time.Duration
 }
 
 func NewTimer(config PomodoroConfig) *PomodoroTimer {
@@ -27,8 +23,6 @@ func NewTimer(config PomodoroConfig) *PomodoroTimer {
 		state:     State{},
 		ticker:    time.NewTicker(200 * time.Millisecond),
 		startTime: time.Time{},
-		StateC:    make(chan WorkState, 1),
-		TimeC:     make(chan time.Duration),
 	}
 
 	timer.init()
@@ -39,12 +33,9 @@ func (t *PomodoroTimer) init() {
 	go func() {
 		for range t.ticker.C {
 			if t.state.State != IDLE {
-				if t.remainingTime() <= 0 {
+				if t.RemainingTime() <= 0 {
 					t.state.Next()
-					t.notifyState()
 					t.resetTimer()
-				} else {
-					t.TimeC <- t.remainingTime()
 				}
 			}
 		}
@@ -54,25 +45,23 @@ func (t *PomodoroTimer) init() {
 func (t *PomodoroTimer) Start() {
 	t.resetTimer()
 	t.state.Next()
-	t.notifyState()
 }
 
 func (t *PomodoroTimer) Stop() {
 	t.state.Cancel()
-	t.notifyState()
 }
 
 func (t *PomodoroTimer) State() WorkState {
 	return t.state.State
 }
 
-func (t *PomodoroTimer) remainingTime() time.Duration {
-	workLenght := t.config.workLenght
+func (t *PomodoroTimer) RemainingTime() time.Duration {
+	workLenght := t.config.WorkLenght
 	if t.state.State == SHORTBREAK {
-		workLenght = t.config.shortPauseLenght
+		workLenght = t.config.ShortPauseLenght
 	}
 	if t.state.State == LONGBREAK {
-		workLenght = t.config.longPauseLenght
+		workLenght = t.config.LongPauseLenght
 	}
 
 	return (workLenght - time.Since(t.startTime)).Round(time.Millisecond)
@@ -80,8 +69,4 @@ func (t *PomodoroTimer) remainingTime() time.Duration {
 
 func (t *PomodoroTimer) resetTimer() {
 	t.startTime = time.Now()
-}
-
-func (t *PomodoroTimer) notifyState() {
-	t.StateC <- t.State()
 }
