@@ -12,7 +12,7 @@ type PomodoroConfig struct {
 
 type PomodoroTimer struct {
 	config    PomodoroConfig
-	state     State
+	state     PomodoroState
 	ticker    *time.Ticker
 	startTime time.Time
 }
@@ -20,7 +20,7 @@ type PomodoroTimer struct {
 func NewTimer(config PomodoroConfig) *PomodoroTimer {
 	timer := PomodoroTimer{
 		config:    config,
-		state:     State{},
+		state:     PomodoroState{},
 		ticker:    time.NewTicker(200 * time.Millisecond),
 		startTime: time.Time{},
 	}
@@ -32,7 +32,7 @@ func NewTimer(config PomodoroConfig) *PomodoroTimer {
 func (t *PomodoroTimer) init() {
 	go func() {
 		for range t.ticker.C {
-			if t.state.State != IDLE {
+			if t.state.state != IDLE {
 				if t.RemainingTime() <= 0 {
 					t.state.Next()
 					t.resetTimer()
@@ -52,15 +52,15 @@ func (t *PomodoroTimer) Stop() {
 }
 
 func (t *PomodoroTimer) State() WorkState {
-	return t.state.State
+	return t.state.state
 }
 
 func (t *PomodoroTimer) RemainingTime() time.Duration {
 	workLenght := t.config.WorkLenght
-	if t.state.State == SHORTBREAK {
+	if t.state.state == SHORTBREAK {
 		workLenght = t.config.ShortPauseLenght
 	}
-	if t.state.State == LONGBREAK {
+	if t.state.state == LONGBREAK {
 		workLenght = t.config.LongPauseLenght
 	}
 

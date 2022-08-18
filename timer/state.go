@@ -11,35 +11,37 @@ const (
 	LONGBREAK
 )
 
-type State struct {
-	State     WorkState
-	WorkCount int
+type PomodoroState struct {
+	state     WorkState
+	workCount int
 }
 
-func NewState() *State {
-	return &State{
-		State:     IDLE,
-		WorkCount: 0,
+func NewState() *PomodoroState {
+	return &PomodoroState{
+		state:     IDLE,
+		workCount: 0,
 	}
 }
 
-func (s *State) Next() {
+func (s *PomodoroState) Next() {
 	var newState WorkState
-	switch s.State {
-	case IDLE, SHORTBREAK, LONGBREAK:
-		s.WorkCount++
+	switch s.state {
+	case IDLE:
+		s.workCount++
 		newState = WORK
+	case SHORTBREAK, LONGBREAK:
+		newState = IDLE
 	case WORK:
-		if int64(math.Mod(float64(s.WorkCount), 4)) == 0 {
+		if int64(math.Mod(float64(s.workCount), 4)) == 0 {
 			newState = LONGBREAK
 		} else {
 			newState = SHORTBREAK
 		}
 	}
 
-	s.State = newState
+	s.state = newState
 }
 
-func (s *State) Cancel() {
-	s.State = IDLE
+func (s *PomodoroState) Cancel() {
+	s.state = IDLE
 }

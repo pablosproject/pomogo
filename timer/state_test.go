@@ -2,10 +2,10 @@ package timer
 
 import "testing"
 
-func AssertState(t testing.TB, got State, want WorkState) {
+func AssertState(t testing.TB, got PomodoroState, want WorkState) {
 	t.Helper()
-	if got.State != want {
-		t.Errorf("Got state %d, wanted %d", got.State, want)
+	if got.state != want {
+		t.Errorf("Got state %d, wanted %d", got.state, want)
 	}
 }
 

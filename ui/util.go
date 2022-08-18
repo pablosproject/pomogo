@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jroimartin/gocui"
+	"github.com/pablosproject/pomogo/timer"
 )
 
 func formatDuration(d time.Duration) string {
@@ -21,6 +22,21 @@ func centeredString(v *gocui.View, s string) string {
 	vPadding := strings.Repeat("\n", height/2+1)
 	hPadding := strings.Repeat(" ", (width-len(s))/2)
 	return fmt.Sprintf("%s%s%s", vPadding, hPadding, s)
+}
+
+func formatState(s timer.WorkState) string {
+	var stateName string
+	switch s {
+	case timer.IDLE:
+		stateName = "IDLE"
+	case timer.LONGBREAK:
+		stateName = "LONGBREAK"
+	case timer.SHORTBREAK:
+		stateName = "SHORTBREAK"
+	case timer.WORK:
+		stateName = "WORK"
+	}
+	return stateName
 }
 
 type Point struct {
@@ -42,4 +58,9 @@ func centeredView(winWidth, winHeight, width, height, offsetX, offsetY int) (top
 		ePoint.y += offsetY
 	}
 	return sPoint, ePoint
+}
+
+func footerView(winWidth, winHeight, width, height, offsetY int) (topPoint, bottomPoint Point) {
+	bottomOffset := winHeight/2 - height/2.0 + offsetY
+	return centeredView(winWidth, winHeight, width, height, 0, bottomOffset)
 }
