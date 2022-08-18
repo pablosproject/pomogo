@@ -60,7 +60,7 @@ func centeredView(winWidth, winHeight, width, height, offsetX, offsetY int) (top
 	return sPoint, ePoint
 }
 
-func footerView(winWidth, winHeight, width, height, offsetY int) (topPoint, bottomPoint Point) {
+func footerViewPosition(winWidth, winHeight, width, height, offsetY int) (topPoint, bottomPoint Point) {
 	bottomOffset := winHeight/2 - height/2.0 + offsetY
 	return centeredView(winWidth, winHeight, width, height, 0, bottomOffset)
 }
