@@ -9,6 +9,9 @@ func (u *UI) registerKeybindings() error {
 	if err := u.gui.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, u.quit); err != nil {
 		return err
 	}
+	if err := u.gui.SetKeybinding("", 'q', gocui.ModNone, u.quit); err != nil {
+		return err
+	}
 	if err := u.gui.SetKeybinding("", 's', gocui.ModNone, u.keyS); err != nil {
 		return err
 	}
